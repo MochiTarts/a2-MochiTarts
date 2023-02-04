@@ -1,0 +1,37 @@
+.add-image-form input {
+  width: 50%;
+  height: 25px;
+  max-width: 244px;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.add-image-form button {
+  width: 50%;
+  height: 25px;
+  max-width: 244px;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  color: white;
+  background-color: #00e1ef;
+  transition: 0.3s;
+}
+
+.add-image-form button:hover {
+  cursor: pointer;
+  background-color: #9e9e9e;
+  color: white;
+}
+
+.add-image-form.hidden input,
+.add-image-form.hidden button {
+  opacity: 0;
+  height: 0;
+  width: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 0;
+  transition: 0s;
+}

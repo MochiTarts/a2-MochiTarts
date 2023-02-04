@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <header>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Web Gallery</title>
+  </header>
+
+  <body>
+    <h1>Credits</h1>
+    <h2>Icons</h2>
+    <ul>
+      <li>
+        Icons made by
+        <a href="https://fontawesome.com/" target="_blank">FontAwesome</a> from
+        <a href="https://fontawesome.com/download" target="_blank"
+          >https://fontawesome.com/download</a
+        >
+        <ul>
+          <li>
+            <a href="./media/angle-left.svg">angle-left.svg</a>, angle-right.svg
+            for left and right slide buttons
+          </li>
+          <li>xmark.svg for image delete button</li>
+          <li>trash.svg for comment delete buttons</li>
+        </ul>
+      </li>
+      <li>
+        Left, right arrow filter by
+        <a href="https://codepen.io/sosuke/pen/Pjoqqp" target="_blank"
+          >Barrett Sonntag</a
+        >
+        from
+        <a href="https://codepen.io/sosuke/pen/Pjoqqp" target="_blank"
+          >https://codepen.io/sosuke/pen/Pjoqqp</a
+        >
+        <ul>
+          <li>
+            <a href="./styles/slide.css" target="_blank">slide.css</a> lines
+            121, 132
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2>HTML, Javascript, CSS code</h2>
+    <ul>
+      <li>
+        Slideshow code derived from
+        <a
+          href="https://www.w3schools.com/howto/howto_js_slideshow.asp"
+          target="_blank"
+          >W3Schools</a
+        >
+        <ul>
+          <li>
+            <a href="./js/slide.js" target="_blank">slide.js</a>
+            getCurrentSlide(), moveSlide(), displaySlide() derived from
+            currentSlide(), plusSlides(), showSlides() on W3Schools'
+            <a
+              href="https://www.w3schools.com/howto/howto_js_slideshow.asp"
+              target="_blank"
+              >How TO - Slideshow</a
+            >
+            tutorial
+          </li>
+          <li>W3Schools' slideshow loads all images</li>
+          <li>
+            My implementation only makes slide components for the target image
+            and removes all other slides for non-active images
+          </li>
+        </ul>
+      </li>
+      <li>
+        Box shadow effect by
+        <a
+          href="https://css-tricks.com/almanac/properties/b/box-shadow/"
+          target="_blank"
+          >Sara Cope</a
+        >
+        from
+        <a
+          href="https://css-tricks.com/almanac/properties/b/box-shadow/"
+          target="_blank"
+          >https://css-tricks.com/almanac/properties/b/box-shadow/</a
+        >
+        <ul>
+          <li>
+            <a href="./styles/main.css" target="_blank">main.css</a> line 34
+          </li>
+          <li>
+            <a href="./styles/slide.css" target="_blank">slide.css</a> lines 50,
+            91
+          </li>
+        </ul>
+      </li>
+      <li>
+        (Mostly CSS issues. Will list a few below, since I honestly couldn't
+        keep track of them all)
+        <a href="http://stackoverflow.com/" target="_blank">Stack Overflow</a>
+        <ul>
+          <li>Scrollable comments section</li>
+          <ul>
+            <li>
+              Credit to Kudos from
+              <a
+                href="https://stackoverflow.com/questions/35896084/make-one-column-of-a-bootstrap-row-scrollable"
+                target="_blank"
+                >StackOverflow</a
+              >. Helped me figure out to set height and max-height of parent div
+              element.
+              <a href="./styles/slide.css" target="_blank">slide.css</a> line 48
+            </li>
+            <li>
+              Credit to DaniP from
+              <a
+                href="https://stackoverflow.com/questions/19734064/overflowscroll-doesnt-show-the-entire-div"
+                target="_blank"
+                >StackOverflow</a
+              >. Helped me figure out to set comments page height and comments
+              head height to make entire comments scrollable section visible.
+              <a href="./styles/comments.css" target="_blank">comments.css</a>
+              lines 44, 49
+            </li>
+          </ul>
+
+          <li>CSS Animations</li>
+          <ul>
+            <li>
+              Credit to AMK from
+              <a
+                href="https://stackoverflow.com/questions/11679567/using-css-for-a-fade-in-effect-on-page-load"
+                target="_blank"
+                >StackOverflow</a
+              >. Helped me figure out to use CSS animations to fade in page
+              elements.
+              <a href="./styles/main.css" target="_blank">main.css</a> lines
+              88-95
+            </li>
+          </ul>
+
+          <li>Regex expressions for form validation</li>
+          <ul>
+            <li>
+              Credit to Mitya and followup replies from
+              <a
+                href="https://stackoverflow.com/questions/36911960/javascript-regexp-constructor-vs-regex-literal"
+                target="_blank"
+                >StackOverflow</a
+              >. Helped me learn the differencd between regex literals and
+              constructors.
+              <a href="./js/helpers.js" target="_blank">helpers.js</a>
+              validateImageForm(), validateCommentForm()
+            </li>
+          </ul>
+        </ul>
+      </li>
+    </ul>
+  </body>
+</html>
