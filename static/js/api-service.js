@@ -24,41 +24,42 @@ let apiService = (function () {
   */
 
   // add an image to the gallery
-  module.addImage = function (title, author, url) {
-    // add image to imageStore and store in localStorage
-    const image = {
-      imageId: imageStore.length.toString(),
-      title: title,
-      author: author,
-      url: url,
-      date: new Date(),
-    };
-    imageStore.push(image);
-    localStorage.setItem("images", JSON.stringify(imageStore));
-    return image.imageId;
+  module.addImage = function (title, author, imageFile) {
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("author", author);
+    formData.append('picture', imageFile);
+    return fetch("/api/post", {
+      method: "POST",
+      body: formData,
+    }).then((res) => res.json())
+      .catch((err) => alert(err));
   };
 
   // delete an image from the gallery given its imageId
   module.deleteImage = function (imageId) {
-    // delete image from imageStore and store in localStorage, and all comments associated with the image
-    imageStore = imageStore.filter((image) => image.imageId !== imageId);
-    localStorage.setItem("images", JSON.stringify(imageStore));
-    commentStore = commentStore.filter(
-      (comment) => comment.imageId !== imageId
-    );
-    localStorage.setItem("comments", JSON.stringify(commentStore));
+    return fetch(`/api/posts/${imageId}`, {
+      method: "DELETE",
+    }).then((res) => res.json())
+      .catch((err) => alert(err));
   };
 
   // get all images
   module.getImages = function () {
-    // get images from localStorage
-    const images = JSON.parse(localStorage.getItem("images")) || [];
-    return images;
+    return fetch("/api/posts", {
+      method: "GET",
+    }).then((res) => res.json());
+  };
+
+  // get image by imageId
+  module.getImageById = function (imageId) {
+    return fetch(`/api/posts/${imageId}`, {
+      method: "GET",
+    }).then((res) => res.json());
   };
 
   // add a comment to an image
   module.addComment = function (imageId, author, content) {
-    //console.log(imageId, author, content);
     // add comment to commentStore and store in localStorage (new comments are added to the front of the array)
     const comment = {
       commentId: commentStore.length.toString(),

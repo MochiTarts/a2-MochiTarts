@@ -1,22 +1,15 @@
 import { CommentSection } from "./comment-section.js";
+import { allImages, reloadImages } from "./helpers.js";
 
-const getCurrentSlide = () => {
+const moveSlide = (imageId) => {
   "use strict";
-  return document.querySelector(".slide.active");
+  allImages.then((images) => {
+    const image = images.find((image) => image.id === imageId);
+    displaySlide(image);
+  });
 };
 
-const moveSlide = (i) => {
-  "use strict";
-  const currentImage = getCurrentSlide();
-  const allImages = apiService.getImages();
-  // Get index of current image in allImages given the imageId
-  const currentImageIndex = allImages.findIndex(
-    (obj) => obj.imageId === currentImage.id
-  );
-  displaySlide(parseInt(currentImageIndex) + i);
-};
-
-export const displaySlide = (i) => {
+export const displaySlide = (image) => {
   "use strict";
   // Remove current slide if it exists
   const currentSlide = document.querySelector(".slide.active");
@@ -24,15 +17,8 @@ export const displaySlide = (i) => {
     currentSlide.remove();
   }
 
-  // Make new active slide for image at index i
-  const image = apiService.getImages()[i];
-  const newSlide = new SlideComponent(
-    image.imageId,
-    image.title,
-    image.author,
-    image.url,
-    image.date
-  );
+  // Make new active slide for image
+  const newSlide = new SlideComponent(image);
   newSlide.classList.add("active");
   const slidesContainer = document.querySelector(".slides-container");
   slidesContainer.appendChild(newSlide);
@@ -40,18 +26,18 @@ export const displaySlide = (i) => {
 
 const SlideComponent = (function () {
   "use strict";
-  return function newSlide(imageId, title, author, url, date) {
+  return function newSlide(image) {
     const slide = document.createElement("div");
     slide.className = "slide";
-    slide.id = imageId;
+    slide.id = image.id;
     slide.innerHTML = `
       <div class="title-container">
-        <span class="title">${title}</span>
-        <span class="author">${author}</span>
+        <span class="title">${image.title}</span>
+        <span class="author">${image.User.name}</span>
       </div>
       <div class="content-container row">
         <div class="image-frame col-md-12 col-9">
-          <img class="image" src=${url} loading="lazy" />
+          <img class="image" src="/api/posts/${image.id}/picture" loading="lazy" />
           <img src="../media/xmark.svg" alt="xmark" class="delete" />
           <button class="left-arrow">
             <img src="../media/angle-left.svg" alt="left arrow" class="angle-left" />
@@ -63,66 +49,68 @@ const SlideComponent = (function () {
       </div>`;
 
     // Add comment section to image
-    const commentSection = new CommentSection(imageId);
+    const commentSection = new CommentSection(image.id);
     slide.querySelector(".content-container").appendChild(commentSection);
 
     const leftArrow = slide.querySelector(".left-arrow");
     const rightArrow = slide.querySelector(".right-arrow");
 
-    const allImages = apiService.getImages();
-
-    // If only one image, hide arrows
-    if (allImages.length === 1) {
-      leftArrow.style.display = "none";
-      rightArrow.style.display = "none";
-    }
-
-    // If on first slide, disable left arrow
-    if (slide.id === allImages[0].imageId) {
-      leftArrow.disabled = true;
-    } else {
-      leftArrow.disabled = false;
-    }
-    // If on last slide, disable right arrow
-    if (slide.id === allImages[allImages.length - 1].imageId) {
-      rightArrow.disabled = true;
-    } else {
-      rightArrow.disabled = false;
-    }
-
-    // Move slides on click
-    leftArrow.addEventListener("click", (e) => {
-      e.preventDefault();
-      moveSlide(-1);
-    });
-    rightArrow.addEventListener("click", (e) => {
-      e.preventDefault();
-      moveSlide(1);
-    });
-
-    // Add delete button listener
-    const deleteBtn = slide.querySelector(".delete");
-    deleteBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const allImages = apiService.getImages();
-      const slidesContainer = document.querySelector(".slides-container");
-      const currentImage = getCurrentSlide();
-      const currentImageIndex = allImages.findIndex(
-        (obj) => obj.imageId === currentImage.id
-      );
-      // Delete image from local storage. Which shifts all images after it to the left so currentImageIndex becomes the index of the next image
-      apiService.deleteImage(imageId);
-      // If current image is only image, remove slide
-      if (allImages.length === 1) {
-        slidesContainer.removeChild(currentImage);
-      } else {
-        // If current image was the last image, move to first image. Otherwise, move to next image
-        if (currentImageIndex === allImages.length - 1) {
-          displaySlide(0);
-        } else {
-          displaySlide(parseInt(currentImageIndex));
-        }
+    allImages.then((images) => {
+      // If only one image, hide arrows
+      if (images.length === 1) {
+        leftArrow.style.display = "none";
+        rightArrow.style.display = "none";
       }
+
+      // If on first slide, disable left arrow
+      //console.log(slide.id);
+      //console.log(images[0].id);
+      if (image.id === images[0].id) {
+        leftArrow.disabled = true;
+      } else {
+        leftArrow.disabled = false;
+      }
+      // If on last slide, disable right arrow
+      if (image.id === images[images.length - 1].id) {
+        rightArrow.disabled = true;
+      } else {
+        rightArrow.disabled = false;
+      }
+
+      // Move slides on click
+      leftArrow.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (image.previousPostId) {
+          moveSlide(image.previousPostId);
+        }
+      });
+      rightArrow.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (image.nextPostId) {
+          moveSlide(image.nextPostId);
+        }
+      });
+
+      // Add delete button listener
+      const deleteBtn = slide.querySelector(".delete");
+      deleteBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        apiService.deleteImage(image.id).then((deletedImage) => {
+          reloadImages().then(() => {
+            if (images.length === 1) {
+              // If only one image, remove slide and reload images
+              slide.remove();
+            } else {
+              if (image.nextPostId) {
+                moveSlide(image.nextPostId);
+              } else {
+                // Move to first image if on last image
+                moveSlide(images[0].id);
+              }
+            }
+          });
+        });
+      });
     });
 
     return slide;

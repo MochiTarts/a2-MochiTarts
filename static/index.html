@@ -20,7 +20,7 @@
       <button class="add-image-btn">Add Image</button>
     </div>
 
-    <form class="add-image-form hidden">
+    <form class="add-image-form hidden" enctype="multipart/form-data">
       <input
         type="text"
         id="form-image-title"
@@ -38,11 +38,11 @@
         required
       />
       <input
-        type="text"
-        id="form-image-url"
+        type="file"
+        id="form-image"
         class="form-element"
-        placeholder="Image Url"
-        name="image-url"
+        placeholder="Image"
+        name="image"
         required
       />
       <button type="submit" class="submit-btn">Submit</button>

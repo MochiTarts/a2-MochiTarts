@@ -1,15 +1,9 @@
-import { validateImageForm } from "./helpers.js";
+import { validateImageForm, allImages, reloadImages } from "./helpers.js";
 import { displaySlide } from "./slide.js";
 
 (function () {
   "use strict";
-  const allImages = apiService.getImages();
   document.addEventListener("DOMContentLoaded", () => {
-    // Display first image, if any
-    if (allImages.length > 0) {
-      displaySlide(0);
-    }
-
     // Toggle add image form on click
     const addImageBtn = document.querySelector(".add-image-btn");
     const formElement = document.querySelector(".add-image-form");
@@ -27,19 +21,29 @@ import { displaySlide } from "./slide.js";
       const authorName = addImageForm.querySelector(
         'input[name="author-name"]'
       ).value;
-      const imageUrl = addImageForm.querySelector(
-        'input[name="image-url"]'
-      ).value;
+      const image = addImageForm.querySelector('input[name="image"]').files[0];
       // Make sure all fields are filled out
-      if (validateImageForm(imageTitle, authorName, imageUrl)) {
+      if (validateImageForm(imageTitle, authorName, image)) {
         formElement.reset();
         formElement.classList.toggle("hidden");
-        //alert("Adding image to gallery!");
 
         // Add image to gallery
-        apiService.addImage(imageTitle, authorName, imageUrl);
-        const newTotalImages = apiService.getImages().length;
-        displaySlide(newTotalImages - 1);
+        apiService.addImage(imageTitle, authorName, image).then((image) => {
+          // Display new image
+          reloadImages().then(() => {
+            allImages.then((images) => {
+              displaySlide(images[images.length - 1]);
+            });
+          });
+        });
+      }
+    });
+
+    allImages.then((images) => {
+      //console.log(images);
+      // Display first image, if any
+      if (images.length > 0) {
+        displaySlide(images[0]);
       }
     });
   });

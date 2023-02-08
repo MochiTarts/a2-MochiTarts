@@ -55,7 +55,7 @@ export const testData = async () => {
   console.log("Post:", post.toJSON());
 }
 
-// Helper function to a guest user if there is no userId in the session, otherwise retrieve user. session will be destroyed when the browser is closed.
+// Helper function to a guest user if there is no userId in the session, otherwise retrieve logged in user.
 export const createOrRetrieveUser = async (req) => {
   let user = null;
   if (req.session.userId) {
@@ -73,7 +73,6 @@ export const createOrRetrieveUser = async (req) => {
     await Guest.create({
       userId: user.id,
     });
-    req.session.userId = user.id;
   }
   return user;
 };

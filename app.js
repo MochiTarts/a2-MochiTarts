@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import multer from "multer";
 import { testData, createOrRetrieveUser } from "./backend-helpers.js";
 import session from "express-session";
+import { json, Op } from "sequelize";
 
 export const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -72,8 +73,6 @@ app.get("/api/session/destroy", (req, res) => {
 const upload = multer({ dest: "uploads/", mimetype: "image/jpeg" });
 app.post("/api/post", upload.single("picture"), async (req, res) => {
   // Make a new post
-  console.log(req.body);
-  console.log(req.file);
   const user = await createOrRetrieveUser(req);
   if (!user) {
     res.status(404).json({ error: "User not found" });
@@ -92,7 +91,7 @@ app.post("/api/post", upload.single("picture"), async (req, res) => {
 });
 
 app.get("/api/posts", async (req, res) => {
-  // Get all posts. Include author's name and all comments (with commenter's name)
+  // Get all posts sorted in ascending order from oldest to newest. Include author's name and all comments (with commenter's name).
   const posts = await Post.findAll({
     include: [
       {
@@ -110,12 +109,34 @@ app.get("/api/posts", async (req, res) => {
         ],
       },
     ],
+    order: [["createdAt", "ASC"]],
   });
+  // For each post, include ids of the previous post and next post (if they exist)
+  for (let i = 0; i < posts.length; i++) {
+    const previousPost = await Post.findOne({
+      where: {
+        createdAt: {
+          [Op.lt]: posts[i].createdAt,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+    });
+    const nextPost = await Post.findOne({
+      where: {
+        createdAt: {
+          [Op.gt]: posts[i].createdAt,
+        },
+      },
+      order: [["createdAt", "ASC"]],
+    });
+    posts[i].setDataValue("previousPostId", previousPost ? previousPost.id : null);
+    posts[i].setDataValue("nextPostId", nextPost ? nextPost.id : null);
+  }
   res.json(posts);
 });
 
 app.get("/api/posts/:id", async (req, res) => {
-  // Get a single post. Include author's name and all comments (with commenter's name)
+  // Get a single post. Include author's name and all comments (with commenter's name).
   const post = await Post.findByPk(req.params.id, {
     include: [
       {
@@ -133,12 +154,41 @@ app.get("/api/posts/:id", async (req, res) => {
         ],
       },
     ],
+    order: [["createdAt", "ASC"]],
   });
   if (!post) {
     res.status(404).json({ error: "Post with id " + req.params.id + " not found" });
     return;
   }
-  res.json(post);
+  // Include previous post and next post (if they exist)
+  const previousPost = await Post.findOne({
+    where: {
+      createdAt: {
+        [Op.lt]: post.createdAt,
+      },
+    },
+    order: [["createdAt", "DESC"]],
+  });
+  const nextPost = await Post.findOne({
+    where: {
+      createdAt: {
+        [Op.gt]: post.createdAt,
+      },
+    },
+    order: [["createdAt", "ASC"]],
+  });
+  res.json({ post, previousPost, nextPost });
+});
+
+app.get("/api/posts/:id/picture", async (req, res) => {
+  // Get a single post's picture
+  const post = await Post.findByPk(req.params.id);
+  if (!post) {
+    res.status(404).json({ error: "Post with id " + req.params.id + " not found" });
+    return;
+  }
+  res.setHeader("Content-Type", post.picture.mimetype);
+  res.sendFile(path.join(__dirname, post.picture.path));
 });
 
 app.post("/api/posts/:id/comment", async (req, res) => {
@@ -207,13 +257,14 @@ app.get("/api/posts/:id/comments", async (req, res) => {
 });
 
 app.delete("/api/posts/:id", async (req, res) => {
-  // Delete a post. This should also delete all comments for that post. (Anyone can delete a post for now.)
+  // Delete a post. This should also delete all comments for that post. (Anyone can delete a post for now.) Should also include number of posts left.
   const post = await Post.findByPk(req.params.id);
   if (!post) {
     res.status(404).json({ error: "Post with id " + req.params.id + " not found" });
     return;
   }
   const deleted = post;
+  deleted.totalPosts = await Post.count();
   await post.destroy();
   res.json(deleted);
 });

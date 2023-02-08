@@ -1,3 +1,12 @@
+// Promise to fetch images from API
+export let allImages = apiService.getImages();
+
+export const reloadImages = async () => {
+  "use strict";
+  // Reload allImages
+  allImages = apiService.getImages();
+};
+
 // Date options for formatting date
 export const dateOptions = {
   weekday: "short",
@@ -6,10 +15,10 @@ export const dateOptions = {
   year: "numeric",
 };
 
-export const validateImageForm = (title, author, url) => {
+export const validateImageForm = (title, author, image) => {
   "use strict";
   // Check if all fields are filled out
-  if (!title || !author || !url) {
+  if (!title || !author || !image) {
     alert("Please fill out all fields");
     return false;
   }
@@ -18,8 +27,7 @@ export const validateImageForm = (title, author, url) => {
   const scriptRegex = /<script>/gi;
   if (
     scriptRegex.test(title) ||
-    scriptRegex.test(author) ||
-    scriptRegex.test(url)
+    scriptRegex.test(author)
   ) {
     alert("Please do not use script tags");
     return false;
@@ -38,12 +46,12 @@ export const validateImageForm = (title, author, url) => {
     return false;
   }
   // Check if url is valid
-  const urlRegex =
+  /*const urlRegex =
     /^[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/gi;
   if (!urlRegex.test(url)) {
     alert("Please enter a valid image url");
     return false;
-  }
+  }*/
   return true;
 };
 
