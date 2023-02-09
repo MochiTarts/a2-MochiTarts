@@ -25,14 +25,16 @@ let apiService = (function () {
 
   // add an image to the gallery
   module.addImage = function (title, author, imageFile) {
+    // If any errors, return error message
     const formData = new FormData();
     formData.append("title", title);
     formData.append("author", author);
-    formData.append('picture', imageFile);
+    formData.append("picture", imageFile);
     return fetch("/api/post", {
       method: "POST",
       body: formData,
-    }).then((res) => res.json())
+    })
+      .then((res) => res.json())
       .catch((err) => alert(err));
   };
 
@@ -40,20 +42,19 @@ let apiService = (function () {
   module.deleteImage = function (imageId) {
     return fetch(`/api/posts/${imageId}`, {
       method: "DELETE",
-    }).then((res) => res.json())
-      .catch((err) => alert(err));
+    }).then((res) => res.json());
   };
 
-  // get all images
-  module.getImages = function () {
-    return fetch("/api/posts", {
+  // get all images (or a subset). By default, these parameters are set to get the first image (most recent)
+  module.getImages = function (startId = null, limit = 1) {
+    return fetch(`/api/posts?limit=${limit}&startId=${startId}`, {
       method: "GET",
     }).then((res) => res.json());
   };
 
-  // get image by imageId
-  module.getImageById = function (imageId) {
-    return fetch(`/api/posts/${imageId}`, {
+  // given uri, get image
+  module.getImageByUri = function (uri) {
+    return fetch(uri, {
       method: "GET",
     }).then((res) => res.json());
   };

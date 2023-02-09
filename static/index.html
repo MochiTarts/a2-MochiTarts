@@ -29,6 +29,8 @@
         name="image-title"
         required
       />
+      <!-- Error message for invalid title. Hide by default -->
+      <div class="error-message hidden" id="title-error-message"></div>
       <input
         type="text"
         id="form-author-name"
@@ -37,6 +39,8 @@
         name="author-name"
         required
       />
+      <!-- Error message for invalid author name. Hide by default -->
+      <div class="error-message hidden" id="author-error-message"></div>
       <input
         type="file"
         id="form-image"
@@ -45,6 +49,8 @@
         name="image"
         required
       />
+      <!-- Error message for invalid image. Hide by default -->
+      <div class="error-message hidden" id="picture-error-message"></div>
       <button type="submit" class="submit-btn">Submit</button>
     </form>
 

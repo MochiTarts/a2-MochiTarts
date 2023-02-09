@@ -1,12 +1,3 @@
-// Promise to fetch images from API
-export let allImages = apiService.getImages();
-
-export const reloadImages = async () => {
-  "use strict";
-  // Reload allImages
-  allImages = apiService.getImages();
-};
-
 // Date options for formatting date
 export const dateOptions = {
   weekday: "short",
@@ -25,10 +16,7 @@ export const validateImageForm = (title, author, image) => {
 
   // Make sure no script tags are in inputs
   const scriptRegex = /<script>/gi;
-  if (
-    scriptRegex.test(title) ||
-    scriptRegex.test(author)
-  ) {
+  if (scriptRegex.test(title) || scriptRegex.test(author)) {
     alert("Please do not use script tags");
     return false;
   }

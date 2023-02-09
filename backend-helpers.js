@@ -1,5 +1,13 @@
+import {
+  User,
+  Account,
+  Guest,
+  UserType,
+  Post,
+  Comment,
+} from "./models/index.js";
 
-import { User, Account, Guest, UserType, Post, Comment } from "./models/index.js";
+export const validImageMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg", "image/svg+xml", "image/webp"];
 
 export const testData = async () => {
   // Create a guest user
@@ -15,45 +23,29 @@ export const testData = async () => {
     userId: user.id,
   });
 
-  // Create an account user
-  const account = await User.create({
-    name: "account",
-    type: 1,
-  });
-  await UserType.create({
-    type: 1,
-    userId: account.id,
-  });
-  await Account.create({
-    email: "test@gmail.com",
-    password: "password",
-    userId: account.id,
-  });
-
-  // Guest user creates a post
+  // Guest user uploads a post
   const post = await Post.create({
     title: "Test Post",
     picture: {
-      path: "uploads/1234",
+      path: "uploads/istockphoto-1071204136-612x612.jpg",
       mimetype: "image/jpeg",
     },
     UserId: user.id,
   });
 
-  // Account user makes 11 comments for the post
-  for (let i = 0; i < 11; i++) {
+  // Make 14 comments on the post
+  for (let i = 0; i < 14; i++) {
     await Comment.create({
-      content: `Test Comment ${i}`,
+      content: `Comment ${i}`,
       PostId: post.id,
-      UserId: account.id,
+      UserId: user.id,
     });
   }
 
   // Console log the data
   console.log("Guest User:", user.toJSON());
-  console.log("Account User:", account.toJSON());
   console.log("Post:", post.toJSON());
-}
+};
 
 // Helper function to a guest user if there is no userId in the session, otherwise retrieve logged in user.
 export const createOrRetrieveUser = async (req) => {
@@ -76,3 +68,56 @@ export const createOrRetrieveUser = async (req) => {
   }
   return user;
 };
+
+export const validateFileForm = (req, file, cb) => {
+  // Make sure title, author, and picture are present
+  const errorMessage = {};
+  if (!req.body.title) {
+    errorMessage.title = "Title is required";
+  }
+  if (!req.body.author) {
+    errorMessage.author = "Author is required";
+  }
+  if (!file) {
+    errorMessage.picture = "Picture is required";
+  }
+  // Make sure title and author are alphanumerical and picture is a valid image
+  if (req.body.title && !req.body.title.match(/^[a-zA-Z0-9 ]+$/)) {
+    errorMessage.title = "Title must be alphanumerical";
+  }
+  if (req.body.author && !req.body.author.match(/^[a-zA-Z0-9 ]+$/)) {
+    errorMessage.author = "Author must be alphanumerical";
+  }
+  if (file && !validImageMimeTypes.includes(file.mimetype)) {
+    errorMessage.picture = "Invalid image type. Valid types are: jpeg, png, gif, jpg, svg, and webp";
+  }
+
+  if (Object.keys(errorMessage).length > 0) {
+    req.errorMessage = errorMessage;
+    return cb(null, false);
+  }
+  return cb(null, true);
+};
+
+export const validateImageForm = (req) => {
+  // Make sure title, author, and picture are present
+  const errorMessage = {};
+  if (!req.body.title) {
+    errorMessage.title = "Title is required";
+  }
+  if (!req.body.author) {
+    errorMessage.author = "Author is required";
+  }
+
+  // Make sure title and author are alphanumerical and picture is a valid image
+  if (req.body.title && !req.body.title.match(/^[a-zA-Z0-9 ]+$/)) {
+    errorMessage.title = "Title must be alphanumerical";
+  }
+  if (req.body.author && !req.body.author.match(/^[a-zA-Z0-9 ]+$/)) {
+    errorMessage.author = "Author must be alphanumerical";
+  }
+  if (Object.keys(errorMessage).length > 0) {
+    return errorMessage;
+  }
+  return null;
+}

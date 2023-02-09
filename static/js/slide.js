@@ -1,15 +1,16 @@
 import { CommentSection } from "./comment-section.js";
-import { allImages, reloadImages } from "./helpers.js";
 
-const moveSlide = (imageId) => {
+const moveSlide = (imageUri) => {
   "use strict";
-  allImages.then((images) => {
-    const image = images.find((image) => image.id === imageId);
-    displaySlide(image);
+  apiService.getImageByUri(imageUri).then((res) => {
+    const image = res.results[0];
+    const prev = res.prevLink;
+    const next = res.nextLink;
+    displaySlide(image, prev, next);
   });
 };
 
-export const displaySlide = (image) => {
+export const displaySlide = (image, prev, next) => {
   "use strict";
   // Remove current slide if it exists
   const currentSlide = document.querySelector(".slide.active");
@@ -18,7 +19,7 @@ export const displaySlide = (image) => {
   }
 
   // Make new active slide for image
-  const newSlide = new SlideComponent(image);
+  const newSlide = new SlideComponent(image, prev, next);
   newSlide.classList.add("active");
   const slidesContainer = document.querySelector(".slides-container");
   slidesContainer.appendChild(newSlide);
@@ -26,7 +27,7 @@ export const displaySlide = (image) => {
 
 const SlideComponent = (function () {
   "use strict";
-  return function newSlide(image) {
+  return function newSlide(image, prev, next) {
     const slide = document.createElement("div");
     slide.className = "slide";
     slide.id = image.id;
@@ -55,61 +56,58 @@ const SlideComponent = (function () {
     const leftArrow = slide.querySelector(".left-arrow");
     const rightArrow = slide.querySelector(".right-arrow");
 
-    allImages.then((images) => {
-      // If only one image, hide arrows
-      if (images.length === 1) {
-        leftArrow.style.display = "none";
-        rightArrow.style.display = "none";
-      }
+    // If only one image, hide arrows
+    if (prev === null && next === null) {
+      leftArrow.style.display = "none";
+      rightArrow.style.display = "none";
+    }
 
-      // If on first slide, disable left arrow
-      //console.log(slide.id);
-      //console.log(images[0].id);
-      if (image.id === images[0].id) {
-        leftArrow.disabled = true;
-      } else {
-        leftArrow.disabled = false;
-      }
-      // If on last slide, disable right arrow
-      if (image.id === images[images.length - 1].id) {
-        rightArrow.disabled = true;
-      } else {
-        rightArrow.disabled = false;
-      }
+    // If on first slide, disable left arrow
+    if (prev === null) {
+      leftArrow.disabled = true;
+    } else {
+      leftArrow.disabled = false;
+    }
+    // If on last slide, disable right arrow
+    if (next === null) {
+      rightArrow.disabled = true;
+    } else {
+      rightArrow.disabled = false;
+    }
 
-      // Move slides on click
-      leftArrow.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (image.previousPostId) {
-          moveSlide(image.previousPostId);
+    // Move slides on click
+    leftArrow.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (prev) {
+        moveSlide(prev);
+      }
+    });
+    rightArrow.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (next) {
+        moveSlide(next);
+      }
+    });
+
+    // Add delete button listener
+    const deleteBtn = slide.querySelector(".delete");
+    deleteBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      apiService.deleteImage(image.id).then((deletedImage) => {
+        if (prev === null && next === null) {
+          // If only one image, remove slide
+          slide.remove();
+        } else {
+          // If not on last slide, move to next slide
+          if (next) {
+            moveSlide(next);
+          } else {
+            // If on last slide, move to first slide
+            apiService.getImages().then((res) => {
+              displaySlide(res.results[0], res.prevLink, res.nextLink);
+            });
+          }
         }
-      });
-      rightArrow.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (image.nextPostId) {
-          moveSlide(image.nextPostId);
-        }
-      });
-
-      // Add delete button listener
-      const deleteBtn = slide.querySelector(".delete");
-      deleteBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        apiService.deleteImage(image.id).then((deletedImage) => {
-          reloadImages().then(() => {
-            if (images.length === 1) {
-              // If only one image, remove slide and reload images
-              slide.remove();
-            } else {
-              if (image.nextPostId) {
-                moveSlide(image.nextPostId);
-              } else {
-                // Move to first image if on last image
-                moveSlide(images[0].id);
-              }
-            }
-          });
-        });
       });
     });
 

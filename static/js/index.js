@@ -1,4 +1,4 @@
-import { validateImageForm, allImages, reloadImages } from "./helpers.js";
+import { validateImageForm } from "./helpers.js";
 import { displaySlide } from "./slide.js";
 
 (function () {
@@ -9,6 +9,11 @@ import { displaySlide } from "./slide.js";
     const formElement = document.querySelector(".add-image-form");
     addImageBtn.addEventListener("click", function () {
       formElement.classList.toggle("hidden");
+      // If any error messages are showing, hide them
+      const errorElements = document.querySelectorAll(".error-message");
+      errorElements.forEach((errorElement) => {
+        errorElement.innerText = "";
+      });
     });
 
     // Add image to gallery on submit
@@ -25,25 +30,37 @@ import { displaySlide } from "./slide.js";
       // Make sure all fields are filled out
       if (validateImageForm(imageTitle, authorName, image)) {
         formElement.reset();
-        formElement.classList.toggle("hidden");
-
         // Add image to gallery
-        apiService.addImage(imageTitle, authorName, image).then((image) => {
-          // Display new image
-          reloadImages().then(() => {
-            allImages.then((images) => {
-              displaySlide(images[images.length - 1]);
+        apiService.addImage(imageTitle, authorName, image).then((res) => {
+          if (res.error) {
+            // Display error message(s)
+            const errorElements = document.querySelectorAll(".error-message");
+            errorElements.forEach((errorElement) => {
+              const inputName = errorElement.id.split("-")[0];
+              if (res.error[inputName]) {
+                errorElement.innerText = res.error[inputName];
+              } else {
+                errorElement.innerText = "";
+              }
             });
-          });
+          } else {
+            formElement.classList.toggle("hidden");
+            // Display new image (new image is always first in array)
+            apiService.getImages().then((res) => {
+              if (res.results.length > 0) {
+                console.log(res);
+                displaySlide(res.results[0], res.prevLink, res.nextLink);
+              }
+            });
+          }
         });
       }
     });
 
-    allImages.then((images) => {
-      //console.log(images);
+    apiService.getImages().then((res) => {
       // Display first image, if any
-      if (images.length > 0) {
-        displaySlide(images[0]);
+      if (res.results.length > 0) {
+        displaySlide(res.results[0], res.prevLink, res.nextLink);
       }
     });
   });
