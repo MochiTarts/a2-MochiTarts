@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Web Gallery</title>
+    <link href="styles/main.css" rel="stylesheet" type="text/css" />
+    <link href="styles/cols.css" rel="stylesheet" type="text/css" />
+    <link href="styles/form.css" rel="stylesheet" type="text/css" />
+    <link href="styles/slide.css" rel="stylesheet" type="text/css" />
+    <link href="styles/comments.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body>
+    <header>
+      <h1 id="title">Web Gallery</h1>
+    </header>
+
+    <div class="add-image-btn-container">
+      <button class="add-image-btn">Add Image</button>
+    </div>
+
+    <form class="add-image-form hidden" enctype="multipart/form-data">
+      <input
+        type="text"
+        id="form-image-title"
+        class="form-element"
+        placeholder="Image Title"
+        name="image-title"
+        required
+      />
+      <!-- Error message for invalid title. Hide by default -->
+      <div class="error-message hidden" id="title-error-message"></div>
+      <input
+        type="text"
+        id="form-author-name"
+        class="form-element"
+        placeholder="Author's Name"
+        name="author-name"
+        required
+      />
+      <!-- Error message for invalid author name. Hide by default -->
+      <div class="error-message hidden" id="author-error-message"></div>
+      <input
+        type="file"
+        id="form-image"
+        class="form-element"
+        placeholder="Image"
+        name="image"
+        required
+      />
+      <!-- Error message for invalid image. Hide by default -->
+      <div class="error-message hidden" id="picture-error-message"></div>
+      <button type="submit" class="submit-btn">Submit</button>
+    </form>
+
+    <div class="slides-container"></div>
+
+    <footer>
+      <a href="/credits.html">credits</a>
+    </footer>
+
+    <script src="js/api-service.js"></script>
+    <script type="module" src="js/helpers.js"></script>
+    <script type="module" src="js/comment-section.js"></script>
+    <script type="module" src="js/slide.js"></script>
+    <script type="module" src="js/index.js"></script>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+.active {
+  display: block;
+}
+
+.comment-section {
+  height: 100%;
+}
+
+.comment-section .error-message {
+  font-size: small;
+  color: red;
+  padding: 5px;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px 0 10px 0;
+}
+
+.pagination button {
+  border-radius: 10px;
+  border: none;
+  background-color: #adadad;
+  padding: 5px 10px 5px 10px;
+}
+
+.pagination button:hover {
+  cursor: pointer;
+  background-color: #9e9e9e;
+}
+
+.pagination button:disabled {
+  cursor: default;
+}
+
+.pagination button:disabled {
+  background-color: #d9d9d9;
+}
+
+.page {
+  flex: 1 1 auto;
+  background-color: #d9d9d9;
+  overflow-y: scroll;
+}
+
+@media (max-width: 768px) {
+  .comment-section {
+    max-height: 400px;
+  }
+
+  .page {
+    overflow-y: scroll;
+    max-height: 200px;
+  }
+}
+
+.comment,
+.no-comments {
+  position: relative;
+  margin: 15px 10px 15px 10px;
+}
+
+.comment-section .hidden {
+  display: none;
+}
+
+.author-comment {
+  font-weight: bold;
+}
+
+.date-comment {
+  font-size: 12px;
+  font-weight: lighter;
+}
+
+.content {
+  padding-top: 5px;
+}
+
+.comment-section .delete {
+  background-color: transparent;
+  border: none;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0px 5px 0px 0px;
+  width: 15px;
+}
+
+.delete:hover {
+  cursor: pointer;
+}
+
+.comment-form {
+  background-color: #939393;
+  width: 100%;
+}
+
+.comment-form input {
+  margin: 10px;
+  border: none;
+  border-bottom: 1px solid white;
+  background-color: #939393;
+  color: white;
+  margin: 5px;
+}
+
+.comment-form input:focus {
+  outline: none;
+}
+
+.comment-form input::placeholder {
+  color: white;
+}
