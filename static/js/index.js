@@ -48,7 +48,6 @@ import { displaySlide } from "./slide.js";
             // Display new image (new image is always first in array)
             apiService.getImages().then((res) => {
               if (res.results.length > 0) {
-                console.log(res);
                 displaySlide(res.results[0], res.prevLink, res.nextLink);
               }
             });

@@ -21,25 +21,18 @@ export const validateImageForm = (title, author, image) => {
     return false;
   }
 
-  // Check if title is valid (alphanumeric and may contain spaces)
-  const titleAuthorRegex = /^[a-zA-Z0-9\s]+$/i;
+  // Check if title is valid (alphanumeric, space, bracket, punctuation, and dash)
+  const titleAuthorRegex = /^[a-zA-Z0-9\s.,?!-()]+$/i;
   if (!titleAuthorRegex.test(title)) {
-    alert("Please enter a valid title");
+    alert("Title cannot contain special characters");
     return false;
   }
-  // Check if author is valid (alphanumeric and spaces)
-  const authorRegex = /^[a-zA-Z0-9\s]+$/i;
+  // Check if author is valid (alphanumeric, space, bracket, punctuation, and dash)
+  const authorRegex = /^[a-zA-Z0-9\s.,?!-()]+$/i;
   if (!authorRegex.test(author)) {
-    alert("Please enter a valid author");
+    alert("Name cannot contain special characters");
     return false;
   }
-  // Check if url is valid
-  /*const urlRegex =
-    /^[(http(s)?):\/\/(www\.)?a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/gi;
-  if (!urlRegex.test(url)) {
-    alert("Please enter a valid image url");
-    return false;
-  }*/
   return true;
 };
 
@@ -58,10 +51,10 @@ export const validateCommentForm = (name, comment) => {
     return false;
   }
 
-  // Make sure name is valid (alphanumeric and spaces)
-  const nameRegex = /^[a-zA-Z0-9\s]+$/i;
+  // Make sure name is valid (alphanumeric, space, bracket, punctuation, and dash)
+  const nameRegex = /^[a-zA-Z0-9\s.,?!-()]+$/;
   if (!nameRegex.test(name)) {
-    alert("Please enter a valid name");
+    alert("Name cannot contain special characters");
     return false;
   }
   return true;

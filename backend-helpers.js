@@ -32,9 +32,17 @@ export const testData = async () => {
     },
     UserId: user.id,
   });
+  const post2 = await Post.create({
+    title: "Test Post 2",
+    picture: {
+      path: "uploads/istockphoto-1071204136-612x612.jpg",
+      mimetype: "image/jpeg",
+    },
+    UserId: user.id,
+  });
 
-  // Make 14 comments on the post
-  for (let i = 0; i < 14; i++) {
+  // Make comments on the post
+  for (let i = 1; i <= 21; i++) {
     await Comment.create({
       content: `Comment ${i}`,
       PostId: post.id,
@@ -81,11 +89,12 @@ export const validateFileForm = (req, file, cb) => {
   if (!file) {
     errorMessage.picture = "Picture is required";
   }
-  // Make sure title and author are alphanumerical and picture is a valid image
-  if (req.body.title && !req.body.title.match(/^[a-zA-Z0-9 ]+$/)) {
+  // Make picture is a valid image
+  // Make sure title and author are valid (alphanumeric, space, bracket, punctuation, and dash)
+  if (req.body.title && !req.body.title.match(/^[a-zA-Z0-9 .,?!-()]+$/)) {
     errorMessage.title = "Title must be alphanumerical";
   }
-  if (req.body.author && !req.body.author.match(/^[a-zA-Z0-9 ]+$/)) {
+  if (req.body.author && !req.body.author.match(/^[a-zA-Z0-9 .,?!-()]+$/)) {
     errorMessage.author = "Author must be alphanumerical";
   }
   if (file && !validImageMimeTypes.includes(file.mimetype)) {
@@ -99,21 +108,18 @@ export const validateFileForm = (req, file, cb) => {
   return cb(null, true);
 };
 
-export const validateImageForm = (req) => {
-  // Make sure title, author, and picture are present
+export const validateCommentForm = (req) => {
+  // Make sure author name and content is present
   const errorMessage = {};
-  if (!req.body.title) {
-    errorMessage.title = "Title is required";
-  }
   if (!req.body.author) {
     errorMessage.author = "Author is required";
   }
-
-  // Make sure title and author are alphanumerical and picture is a valid image
-  if (req.body.title && !req.body.title.match(/^[a-zA-Z0-9 ]+$/)) {
-    errorMessage.title = "Title must be alphanumerical";
+  if (!req.body.content) {
+    errorMessage.content = "Comment is required";
   }
-  if (req.body.author && !req.body.author.match(/^[a-zA-Z0-9 ]+$/)) {
+
+  // Make sure author name is valid (alphanumeric, space, bracket, punctuation, and dash)
+  if (req.body.author && !req.body.author.match(/^[a-zA-Z0-9 .,?!-()]+$/)) {
     errorMessage.author = "Author must be alphanumerical";
   }
   if (Object.keys(errorMessage).length > 0) {

@@ -6,7 +6,6 @@ body {
 }
 
 header {
-  //background-color: greenyellow;
   padding: 50px 0 50px 0;
   display: flex;
   align-items: center;
@@ -14,7 +13,6 @@ header {
 }
 
 header h1 {
-  //background-color: aliceblue;
   color: #9e9e9e;
   text-decoration: none;
   margin: 0px;
@@ -75,8 +73,16 @@ header h1 {
   transition: 0.5s ease-in;
 }
 
+.add-image-form .error-message {
+  color: red;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
+  margin: 0;
+  padding: 0;
+}
+
 .slides-container {
-  //background-color: aqua;
   margin: 50px;
   display: block;
   position: relative;

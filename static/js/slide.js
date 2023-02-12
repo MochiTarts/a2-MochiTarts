@@ -58,8 +58,8 @@ const SlideComponent = (function () {
 
     // If only one image, hide arrows
     if (prev === null && next === null) {
-      leftArrow.style.display = "none";
-      rightArrow.style.display = "none";
+      leftArrow.classList.add("hidden");
+      rightArrow.classList.add("hidden");
     }
 
     // If on first slide, disable left arrow

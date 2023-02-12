@@ -61,52 +61,40 @@ let apiService = (function () {
 
   // add a comment to an image
   module.addComment = function (imageId, author, content) {
-    // add comment to commentStore and store in localStorage (new comments are added to the front of the array)
-    const comment = {
-      commentId: commentStore.length.toString(),
-      imageId: imageId,
-      author: author,
-      content: content,
-      date: new Date(),
-    };
-    commentStore.unshift(comment);
-    localStorage.setItem("comments", JSON.stringify(commentStore));
-    return comment.commentId;
+    return fetch (`/api/posts/${imageId}/comment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        author,
+        content,
+      }),
+    })
+      .then((res) => res.json())
+      .catch((err) => alert(err));
   };
 
   // delete a comment to an image
   module.deleteComment = function (commentId) {
-    // delete comment from commentStore and store in localStorage
-    commentStore = commentStore.filter(
-      (comment) => comment.commentId !== commentId
-    );
-    localStorage.setItem("comments", JSON.stringify(commentStore));
+    return fetch(`/api/comments/${commentId}`, {
+      method: "DELETE",
+    }).then((res) => res.json())
+      .catch((err) => alert(err));
   };
 
-  // get all comments for an image
-  module.getComments = function (imageId) {
-    // get comments from localStorage
-    const comments = JSON.parse(localStorage.getItem("comments")) || [];
-    return comments.filter((comment) => comment.imageId === imageId);
+  // get all comments for an image (or a subset). by default, the parameters are set to get the 10 most recent comments
+  module.getComments = function (imageId, startId = null, limit = 10) {
+    return fetch(`/api/posts/${imageId}/comments?limit=${limit}&startId=${startId}`, {
+      method: "GET",
+    }).then((res) => res.json());
   };
 
-  // get comments for an image given page number and number of comments per page
-  module.getCommentsByPage = function (imageId, page, numComments) {
-    // get comments from localStorage
-    const comments = JSON.parse(localStorage.getItem("comments")) || [];
-    const commentsForImage = comments.filter(
-      (comment) => comment.imageId === imageId
-    );
-    const startIndex = (page - 1) * numComments;
-    const endIndex = startIndex + numComments;
-    return commentsForImage.slice(startIndex, endIndex);
-  };
-
-  // get all comments
-  module.getAllComments = function () {
-    // get comments from localStorage
-    const comments = JSON.parse(localStorage.getItem("comments")) || [];
-    return comments;
+  // given uri, get comments
+  module.getCommentsByUri = function (uri) {
+    return fetch(uri, {
+      method: "GET",
+    }).then((res) => res.json());
   };
 
   return module;

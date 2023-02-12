@@ -13,7 +13,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import fs from "fs";
-import { testData, createOrRetrieveUser, validImageMimeTypes, validateFileForm } from "./backend-helpers.js";
+import { testData, createOrRetrieveUser, validImageMimeTypes, validateFileForm, validateCommentForm } from "./backend-helpers.js";
 import session from "express-session";
 import { json, Op } from "sequelize";
 
@@ -42,11 +42,11 @@ try {
   // Automatically detect all of your defined models and create (or modify) the tables for you.
   // This is not recommended for production-use, but that is a topic for a later time!
   await sequelize.sync({ alter: { drop: false } });
-  await sequelize.sync({ force: true }); // Added this line to drop the tables and recreate them (will remove before submission)
+  // await sequelize.sync({ force: true }); // Added this line to drop the tables and recreate them (will remove before submission)
 
   // This is a helper function that I created to populate the database with some test data.
-  // You can remove this line if you want.
-  await testData();
+  // Comment this out before submission.
+  // await testData();
 
   console.log("Connection has been established successfully.");
 } catch (error) {
@@ -58,27 +58,8 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Helper api to test session
-app.get("/test", (req, res) => {
-  if (req.session.userId) {
-    res.send(`Hello ${req.session.userId}`);
-  } else {
-    res.send("Hello World");
-  }
-});
 
-// Helper api to test session
-app.get("/api/session/set", async (req, res) => {
-  req.session.userId = 1;
-  res.json({ message: "Session set" });
-});
-
-// Helper api to destroy session
-app.get("/api/session/destroy", (req, res) => {
-  req.session.destroy();
-  res.json({ message: "Session destroyed" });
-});
-
+/* Post (image) APIs */
 const upload = multer({ dest: "uploads/", mimetype: validImageMimeTypes, fileFilter: validateFileForm });
 app.post("/api/post", upload.single("picture"), async (req, res) => {
   if (req.errorMessage) {
@@ -138,7 +119,8 @@ app.get("/api/posts", async (req, res) => {
     nextLink: null,
     prevLink: null,
   };
-  // Given the limit and startId, calculate the next startId. It is the id of the post whose createdAt is right before the oldest post in the current batch.
+  // Given the limit and startId, calculate the next startId.
+  // startId = id of the post whose createdAt is right before the oldest post in the current page
   if (limit && posts.length > 0) {
     const oldestPost = posts[posts.length - 1];
     const nextPost = await Post.findOne({
@@ -153,17 +135,20 @@ app.get("/api/posts", async (req, res) => {
       ? `/api/posts?limit=${limit}&startId=${nextPost.id}`
       : null;
   }
-  // Given the limit and startId, calculate the previous startId. It is the id of the post whose createdAt is right after the newest post in the current batch.
+  // Given the limit and startId, calculate the previous startId.
+  // startId = id of comment that is limit away from the newest comment in the current batch
   if (limit && posts.length > 0) {
     const newestPost = posts[0];
-    const previousPost = await Post.findOne({
+    const previousPostPage = await Post.findAll({
       where: {
         createdAt: {
           [Op.gt]: newestPost.createdAt,
         },
       },
-      order: [["createdAt", "ASC"]],
+      limit: limit,
+      order: [["createdAt", "DESC"]],
     });
+    const previousPost = previousPostPage[0];
     resp.prevLink = previousPost
       ? `/api/posts?limit=${limit}&startId=${previousPost.id}`
       : null;
@@ -186,7 +171,6 @@ app.get("/api/posts/:id/picture", async (req, res) => {
 
 app.delete("/api/posts/:id", async (req, res) => {
   // Delete a post. This should also delete all comments for that post. (Anyone can delete a post for now.) Should also include number of posts left.
-  // Delete image file
   const post = await Post.findByPk(req.params.id);
   if (!post) {
     res
@@ -194,6 +178,7 @@ app.delete("/api/posts/:id", async (req, res) => {
       .json({ error: "Post with id " + req.params.id + " not found" });
     return;
   }
+  // Delete image file
   fs.unlinkSync(path.join(__dirname, post.picture.path));
   // Delete post
   const deleted = post;
@@ -202,8 +187,17 @@ app.delete("/api/posts/:id", async (req, res) => {
   res.json(deleted);
 });
 
+
+/* Comments APIs */
 app.post("/api/posts/:id/comment", async (req, res) => {
   // Create a comment for a single post
+  // Validate author and comment content
+  const errorMessage = validateCommentForm(req);
+  if (errorMessage) {
+    res.status(400).json({ error: errorMessage });
+    return;
+  }
+  // Retrieve post (make sure it exists)
   const post = await Post.findByPk(req.params.id);
   if (!post) {
     res
@@ -227,7 +221,8 @@ app.post("/api/posts/:id/comment", async (req, res) => {
 });
 
 app.get("/api/posts/:id/comments", async (req, res) => {
-  // Get all comments for a single post. May include pagination.
+  // Retrieve comments up to (limit) for a single post starting from (startId), sorted from most recent to oldest.
+  // If no limit provided, retrieve all comments. If no startId provided, retrieve comments from the most recent.
   const post = await Post.findByPk(req.params.id);
   if (!post) {
     res
@@ -236,50 +231,73 @@ app.get("/api/posts/:id/comments", async (req, res) => {
     return;
   }
 
-  let comments = [];
-  if (req.query.page && req.query.limit) {
-    const offset = (req.query.page - 1) * req.query.limit;
-    const limit = req.query.limit;
-    comments = await Comment.findAll({
-      where: {
-        PostId: req.params.id,
+  const startId = req.query.startId ? parseInt(req.query.startId) : null;
+  const limit = req.query.limit ? parseInt(req.query.limit) : null;
+  // Retrieve comments given the limit and startId, and post id
+  const comments = await Comment.findAll({
+    where: {
+      PostId: post.id,
+      ...(startId && { id: { [Op.lte]: startId } }),
+    },
+    limit,
+    order: [["createdAt", "DESC"]],
+    include: [
+      {
+        model: User,
+        attributes: ["name"],
       },
-      include: [
-        {
-          model: User,
-          attributes: ["name"],
-        },
-      ],
-      order: [["createdAt", "DESC"]],
-      offset: offset,
-      limit: limit,
-    });
-  } else {
-    comments = await Comment.findAll({
+    ],
+  });
+  const resp = {
+    limit: limit,
+    results: comments,
+    size: comments.length,
+    startId: startId,
+    nextLink: null,
+    prevLink: null,
+  };
+  // Given the post id, limit and startId, calculate the next startId.
+  // startId = id whose createdAt is right before the oldest comment in the current batch
+  if (limit && comments.length > 0) {
+    const oldestComment = comments[comments.length - 1];
+    const nextComment = await Comment.findOne({
       where: {
-        PostId: req.params.id,
-      },
-      include: [
-        {
-          model: User,
-          attributes: ["name"],
+        createdAt: {
+          [Op.lt]: oldestComment.createdAt,
         },
-      ],
+        PostId: post.id,
+      },
       order: [["createdAt", "DESC"]],
     });
+    resp.nextLink = nextComment
+      ? `/api/posts/${post.id}/comments?limit=${limit}&startId=${nextComment.id}`
+      : null;
   }
-  res.json(comments);
+  // Given the post id, limit and startId, calculate the previous startId.
+  // startId = id of comment that is limit away from the newest comment in the current batch
+  if (limit && comments.length > 0) {
+    const newestComment = comments[0];
+    // Get all comments newer than the newest comment in the current batch, up to limit
+    const previousCommentPage = await Comment.findAll({
+      where: {
+        createdAt: {
+          [Op.gt]: newestComment.createdAt,
+        },
+        PostId: post.id,
+      },
+      limit: limit,
+      order: [["createdAt", "ASC"]],
+    });
+    const previousComment = previousCommentPage[previousCommentPage.length - 1];
+    resp.prevLink = previousComment
+      ? `/api/posts/${post.id}/comments?limit=${limit}&startId=${previousComment.id}`
+      : null;
+  }
+  res.json(resp);
 });
 
-app.delete("/api/posts/:id/comments/:commentId", async (req, res) => {
+app.delete("/api/comments/:commentId", async (req, res) => {
   // Anyone can delete a comment for now.
-  const post = await Post.findByPk(req.params.id);
-  if (!post) {
-    res
-      .status(404)
-      .json({ error: "Post with id " + req.params.id + " not found" });
-    return;
-  }
   const comment = await Comment.findByPk(req.params.commentId);
   if (!comment) {
     res

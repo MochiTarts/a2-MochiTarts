@@ -1,18 +1,25 @@
-.page {
-  display: none;
-}
-
 .active {
   display: block;
 }
 
 .comment-section {
-  //background-color: green;
   height: 100%;
 }
 
+.comment-section .error-message {
+  font-size: small;
+  color: red;
+  padding: 5px;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0px;
+}
+
 .pagination {
-  //background-color: blueviolet;
   display: flex;
   justify-content: center;
   gap: 20px;
@@ -39,14 +46,9 @@
   background-color: #d9d9d9;
 }
 
-.comment-head {
-  //background-color: violet;
-  height: 20%;
-}
-
 .page {
+  flex: 1 1 auto;
   background-color: #d9d9d9;
-  height: 80%;
   overflow-y: scroll;
 }
 
@@ -65,6 +67,10 @@
 .no-comments {
   position: relative;
   margin: 15px 10px 15px 10px;
+}
+
+.comment-section .hidden {
+  display: none;
 }
 
 .author-comment {

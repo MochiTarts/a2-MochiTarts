@@ -1,11 +1,14 @@
 .slide {
-  //background-color: green;
   display: none;
   animation-name: fade;
   animation-duration: 1.5s;
   margin-left: auto;
   margin-right: auto;
   max-width: 1600px;
+}
+
+.slide .hidden {
+  display: none;
 }
 
 /* Fading animation */
@@ -20,10 +23,6 @@
 
 .active {
   display: block;
-}
-
-.title-container {
-  //background-color: violet;
 }
 
 .title {
@@ -49,7 +48,6 @@
   max-height: 500px;
   box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
   justify-content: center;
-  //background-color: blueviolet;
 }
 
 @media (max-width: 768px) {
@@ -65,7 +63,6 @@
 }
 
 .image-frame {
-  //background-color: yellow;
   position: relative;
   overflow: hidden;
   display: flex;
