@@ -61,7 +61,7 @@ let apiService = (function () {
 
   // add a comment to an image
   module.addComment = function (imageId, author, content) {
-    return fetch (`/api/posts/${imageId}/comment`, {
+    return fetch(`/api/posts/${imageId}/comment`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,15 +79,19 @@ let apiService = (function () {
   module.deleteComment = function (commentId) {
     return fetch(`/api/comments/${commentId}`, {
       method: "DELETE",
-    }).then((res) => res.json())
+    })
+      .then((res) => res.json())
       .catch((err) => alert(err));
   };
 
   // get all comments for an image (or a subset). by default, the parameters are set to get the 10 most recent comments
   module.getComments = function (imageId, startId = null, limit = 10) {
-    return fetch(`/api/posts/${imageId}/comments?limit=${limit}&startId=${startId}`, {
-      method: "GET",
-    }).then((res) => res.json());
+    return fetch(
+      `/api/posts/${imageId}/comments?limit=${limit}&startId=${startId}`,
+      {
+        method: "GET",
+      }
+    ).then((res) => res.json());
   };
 
   // given uri, get comments

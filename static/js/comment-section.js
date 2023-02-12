@@ -20,9 +20,7 @@ const addNewComment = async (commentSection, imageId) => {
     apiService.addComment(imageId, nameInput, commentInput).then((res) => {
       if (res.error) {
         // Display error message(s)
-        const errorElements = commentSection.querySelectorAll(
-          ".error-message"
-        );
+        const errorElements = commentSection.querySelectorAll(".error-message");
         errorElements.forEach((errorElement) => {
           const inputName = errorElement.id.split("-")[0];
           if (res.error[inputName]) {
@@ -43,10 +41,13 @@ const addNewComment = async (commentSection, imageId) => {
 const deleteAComment = (commentSection, comment, prev, next) => {
   "use strict";
   const topCommentId = parseInt(commentSection.querySelector(".comment").id);
-  const totalCommentsOnPage = commentSection.querySelectorAll(".comment").length;
+  const totalCommentsOnPage =
+    commentSection.querySelectorAll(".comment").length;
   apiService.deleteComment(comment.id).then((res) => {
     if (res.error) {
-      alert("Sorry, there was an error deleting this comment. Please try again later.");
+      alert(
+        "Sorry, there was an error deleting this comment. Please try again later."
+      );
     } else {
       if (comment.id === topCommentId && totalCommentsOnPage === 1 && prev) {
         apiService.getCommentsByUri(prev).then((res) => {
@@ -54,12 +55,24 @@ const deleteAComment = (commentSection, comment, prev, next) => {
         });
       } else {
         if (comment.id === topCommentId) {
-          apiService.getComments(comment.PostId, topCommentId - 1).then((res) => {
-            loadComments(commentSection, res.results, res.prevLink, res.nextLink);
-          });
+          apiService
+            .getComments(comment.PostId, topCommentId - 1)
+            .then((res) => {
+              loadComments(
+                commentSection,
+                res.results,
+                res.prevLink,
+                res.nextLink
+              );
+            });
         } else {
           apiService.getComments(comment.PostId, topCommentId).then((res) => {
-            loadComments(commentSection, res.results, res.prevLink, res.nextLink);
+            loadComments(
+              commentSection,
+              res.results,
+              res.prevLink,
+              res.nextLink
+            );
           });
         }
       }
@@ -128,16 +141,14 @@ const loadComments = (commentSection, comments, prev, next) => {
 
 const Comment = (function () {
   "use strict";
-  return function newComment(
-    commentSection,
-    comment,
-    prev,
-    next
-  ) {
+  return function newComment(commentSection, comment, prev, next) {
     const commentElmt = document.createElement("div");
     commentElmt.className = "comment";
     commentElmt.id = comment.id;
-    comment.createdAt = new Date(comment.createdAt).toLocaleDateString("en-US", dateOptions);
+    comment.createdAt = new Date(comment.createdAt).toLocaleDateString(
+      "en-US",
+      dateOptions
+    );
     commentElmt.innerHTML = `
       <div class="author-comment">${comment.User.name}</div>
       <div class="date-comment">${comment.createdAt}</div>

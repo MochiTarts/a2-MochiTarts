@@ -13,7 +13,13 @@ import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import fs from "fs";
-import { testData, createOrRetrieveUser, validImageMimeTypes, validateFileForm, validateCommentForm } from "./backend-helpers.js";
+import {
+  testData,
+  createOrRetrieveUser,
+  validImageMimeTypes,
+  validateFileForm,
+  validateCommentForm,
+} from "./backend-helpers.js";
 import session from "express-session";
 import { json, Op } from "sequelize";
 
@@ -58,9 +64,12 @@ app.use(function (req, res, next) {
   next();
 });
 
-
 /* Post (image) APIs */
-const upload = multer({ dest: "uploads/", mimetype: validImageMimeTypes, fileFilter: validateFileForm });
+const upload = multer({
+  dest: "uploads/",
+  mimetype: validImageMimeTypes,
+  fileFilter: validateFileForm,
+});
 app.post("/api/post", upload.single("picture"), async (req, res) => {
   if (req.errorMessage) {
     res.status(400).json({ error: req.errorMessage });
@@ -187,7 +196,6 @@ app.delete("/api/posts/:id", async (req, res) => {
   res.json(deleted);
 });
 
-
 /* Comments APIs */
 app.post("/api/posts/:id/comment", async (req, res) => {
   // Create a comment for a single post
@@ -300,11 +308,9 @@ app.delete("/api/comments/:commentId", async (req, res) => {
   // Anyone can delete a comment for now.
   const comment = await Comment.findByPk(req.params.commentId);
   if (!comment) {
-    res
-      .status(404)
-      .json({
-        error: "Comment with id " + req.params.commentId + " not found",
-      });
+    res.status(404).json({
+      error: "Comment with id " + req.params.commentId + " not found",
+    });
     return;
   }
   const deleted = comment;

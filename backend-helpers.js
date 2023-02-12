@@ -7,7 +7,14 @@ import {
   Comment,
 } from "./models/index.js";
 
-export const validImageMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg", "image/svg+xml", "image/webp"];
+export const validImageMimeTypes = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/jpg",
+  "image/svg+xml",
+  "image/webp",
+];
 
 export const testData = async () => {
   // Create a guest user
@@ -98,7 +105,8 @@ export const validateFileForm = (req, file, cb) => {
     errorMessage.author = "Author must be alphanumerical";
   }
   if (file && !validImageMimeTypes.includes(file.mimetype)) {
-    errorMessage.picture = "Invalid image type. Valid types are: jpeg, png, gif, jpg, svg, and webp";
+    errorMessage.picture =
+      "Invalid image type. Valid types are: jpeg, png, gif, jpg, svg, and webp";
   }
 
   if (Object.keys(errorMessage).length > 0) {
@@ -126,4 +134,4 @@ export const validateCommentForm = (req) => {
     return errorMessage;
   }
   return null;
-}
+};
