@@ -38,7 +38,7 @@ const addNewComment = async (commentSection, imageId) => {
   }
 };
 
-const deleteAComment = (commentSection, comment, prev, next) => {
+const deleteAComment = (commentSection, comment, prev) => {
   "use strict";
   const topCommentId = parseInt(commentSection.querySelector(".comment").id);
   const totalCommentsOnPage =
@@ -159,7 +159,7 @@ const Comment = (function () {
     const deleteBtn = commentElmt.querySelector(".delete");
     deleteBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      deleteAComment(commentSection, comment, prev, next);
+      deleteAComment(commentSection, comment, prev);
     });
 
     return commentElmt;

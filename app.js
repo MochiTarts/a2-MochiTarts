@@ -1,27 +1,19 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { sequelize } from "./datasource.js";
-import {
-  User,
-  Post,
-  Comment,
-  UserType,
-  Guest,
-  Account,
-} from "./models/index.js";
+import { User, Post, Comment } from "./models/index.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import fs from "fs";
 import {
-  testData,
   createOrRetrieveUser,
   validImageMimeTypes,
   validateFileForm,
   validateCommentForm,
 } from "./backend-helpers.js";
 import session from "express-session";
-import { json, Op } from "sequelize";
+import { Op } from "sequelize";
 
 export const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
