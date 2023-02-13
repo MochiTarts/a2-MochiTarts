@@ -1,11 +1,4 @@
-import {
-  User,
-  Account,
-  Guest,
-  UserType,
-  Post,
-  Comment,
-} from "./models/index.js";
+import { User, Guest, UserType, Post, Comment } from "./models/index.js";
 
 export const validImageMimeTypes = [
   "image/jpeg",
