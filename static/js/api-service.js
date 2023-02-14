@@ -30,7 +30,7 @@ let apiService = (function () {
     formData.append("title", title);
     formData.append("author", author);
     formData.append("picture", imageFile);
-    return fetch("/api/post", {
+    return fetch("/api/posts", {
       method: "POST",
       body: formData,
     })
@@ -61,7 +61,7 @@ let apiService = (function () {
 
   // add a comment to an image
   module.addComment = function (imageId, author, content) {
-    return fetch(`/api/posts/${imageId}/comment`, {
+    return fetch(`/api/posts/${imageId}/comments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

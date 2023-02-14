@@ -11,6 +11,7 @@ import {
   validImageMimeTypes,
   validateFileForm,
   validateCommentForm,
+  testData,
 } from "./backend-helpers.js";
 import session from "express-session";
 import { Op } from "sequelize";
@@ -62,7 +63,7 @@ const upload = multer({
   mimetype: validImageMimeTypes,
   fileFilter: validateFileForm,
 });
-app.post("/api/post", upload.single("picture"), async (req, res) => {
+app.post("/api/posts", upload.single("picture"), async (req, res) => {
   if (req.errorMessage) {
     res.status(400).json({ error: req.errorMessage });
     return;
@@ -99,16 +100,6 @@ app.get("/api/posts", async (req, res) => {
       {
         model: User,
         attributes: ["name"],
-      },
-      {
-        model: Comment,
-        attributes: ["content"],
-        include: [
-          {
-            model: User,
-            attributes: ["name"],
-          },
-        ],
       },
     ],
   });
@@ -189,7 +180,7 @@ app.delete("/api/posts/:id", async (req, res) => {
 });
 
 /* Comments APIs */
-app.post("/api/posts/:id/comment", async (req, res) => {
+app.post("/api/posts/:id/comments", async (req, res) => {
   // Create a comment for a single post
   // Validate author and comment content
   const errorMessage = validateCommentForm(req);
